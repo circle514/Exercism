@@ -1,0 +1,72 @@
+"""Functions to automate Conda airlines ticketing system."""
+
+
+def generate_seat_letters(number):
+    """Generate a series of letters for airline seats.
+
+    :param number: int - total number of seat letters to be generated.
+    :return: generator - generator that yields seat letters.
+
+    Seat letters are generated from A to D.
+    After D it should start again with A.
+
+    Example: A, B, C, D
+
+    """
+    letters = "ABCD"
+    for num in range(number):
+        yield letters[num % 4]
+        
+
+
+def generate_seats(number):
+    """Generate a series of identifiers for airline seats.
+
+    :param number: int - total number of seats to be generated.
+    :return: generator - generator that yields seat numbers.
+
+    A seat number consists of the row number and the seat letter.
+
+    There is no row 13.
+    Each row has 4 seats.
+
+    Seats should be sorted from low to high.
+
+    Example: 3C, 3D, 4A, 4B
+
+    """
+    letter = generate_seat_letters(number)
+    for numb in range(number):
+        seat_number = (numb // 4) + 1
+        if seat_number >= 13:
+            seat_number += 1
+        yield str(seat_number) + next(letter, "error")
+
+def assign_seats(passengers):
+    """Assign seats to passengers.
+
+    :param passengers: list[str] - a list of strings containing names of passengers.
+    :return: dict - with the names of the passengers as keys and seat numbers as values.
+
+    Example output: {"Adele": "1A", "Björk": "1B"}
+
+    """
+    seats_assigned = {}
+    seats = generate_seats(len(passengers))
+    for passenger in passengers:
+        seats_assigned[passenger] = next(seats)
+    return seats_assigned
+
+def generate_codes(seat_numbers, flight_id):
+    """Generate codes for a ticket.
+
+    :param seat_numbers: list[str] - list of seat numbers.
+    :param flight_id: str - string containing the flight identifier.
+    :return: generator - generator that yields 12 character long ticket codes.
+
+    """
+    for number in seat_numbers:
+        code = number + flight_id
+        while range(len(code), 12):
+            code += "0"
+        yield code
